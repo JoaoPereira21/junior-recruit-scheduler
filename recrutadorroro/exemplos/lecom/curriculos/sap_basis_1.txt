@@ -1,0 +1,17 @@
+Candidato SAP 1
+Recife - PE
+
+Resumo: Consultor SAP Basis com 10 anos de experiência em ambientes críticos.
+
+Experiência Profissional
+Consultor SAP Basis Sênior - Consultoria Exemplo (2019 - atual)
+- Administração de S/4HANA e HANA 2.0 com HANA Cockpit e HANA System Replication (HSR)
+- Sustentação de PI/PO, GRC e Solution Manager (SolMan)
+- Aplicação de kernel, SAP Host Agent, transportes via STMS
+- Testes de HA/DR e ambientes Linux (SUSE)
+Analista SAP Basis - Indústria Exemplo (2016 - 2019)
+- Upgrade de ECC, system copy e refresh
+
+Formação: Bacharelado em Sistemas de Informação (concluído)
+Competências: Nutanix AHV, Web Dispatcher, SAProuter, ITIL, shell script
+Certificações: SAP Certified Technology Associate - SAP HANA

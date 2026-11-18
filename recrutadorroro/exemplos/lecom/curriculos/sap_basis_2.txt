@@ -1,0 +1,10 @@
+Candidato SAP 2
+São Paulo - SP
+
+Experiência
+Analista Basis - Varejo Exemplo (2021 - atual)
+- Administração de SAP ECC e banco HANA
+- Kernel, STMS e Solution Manager
+- Monitoramento de jobs e dumps em Linux
+
+Formação: Tecnólogo em Redes de Computadores

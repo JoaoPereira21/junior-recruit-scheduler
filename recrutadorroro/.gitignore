@@ -4,6 +4,7 @@ dados/
 # Currículos reais não devem ficar na pasta do projeto. Só os fictícios de exemplos/.
 curriculos/
 !exemplos/curriculos/
+!exemplos/lecom/curriculos/
 
 .venv/
 __pycache__/

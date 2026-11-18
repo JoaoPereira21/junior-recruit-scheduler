@@ -1,0 +1,10 @@
+Candidato SAP 3
+Fortaleza - CE
+
+Experiência
+Analista de Infraestrutura - Empresa Exemplo (2018 - atual)
+- Administração de servidores Linux e Windows, VMware e storage
+- Redes, DNS e firewall
+- Apoio ao time SAP na abertura de chamados
+
+Formação: Bacharelado em Ciência da Computação (concluído)
