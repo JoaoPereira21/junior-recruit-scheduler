@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_situacao.html" import decisao %}
+{% block titulo %}Buscar perfis · RecrutadorRORO{% endblock %}
+{% block conteudo %}
+<h1>Buscar perfis</h1>
+<p class="sutil">Procura em <strong>todos</strong> os currículos já recebidos, de qualquer vaga. Separe os termos por vírgula; use <code>|</code> para sinônimos.</p>
+
+<form class="busca-rapida" action="/busca" method="get">
+  <input type="search" name="q" value="{{ q }}" autofocus placeholder="Ex.: eSocial, TOTVS RM | Senior, Fortaleza" aria-label="Termos da busca">
+  <button class="botao" type="submit">Buscar</button>
+</form>
+
+{% if q %}
+  {% if perfis %}
+  <p class="sutil">{{ perfis|length }} currículo(s) citam ao menos um dos {{ termos|length }} termo(s). Os que citam mais termos aparecem primeiro.</p>
+  {% for p in perfis %}
+  <div class="perfil">
+    <div class="perfil-topo">
+      <a href="/vagas/{{ p.vaga_id }}/candidatos/{{ p.candidato_id }}"><strong>{{ p.arquivo }}</strong></a>
+      <span class="sutil">enviado para: {{ p.vaga_titulo }}</span>
+      <span class="contagem">{{ p.encontrados|length }} de {{ termos|length }} termos</span>
+      {{ decisao(p.decisao) }}
+    </div>
+    <ul class="itens">
+      {% for a in p.encontrados %}<li class="sim"><span class="marca-item">✓</span><span><strong>{{ a.termo }}</strong><br><q>{{ a.trecho }}</q></span></li>{% endfor %}
+      {% for f in p.faltando %}<li class="nao"><span class="marca-item">✕</span><span><strong>{{ f }}</strong> <span class="sutil">não citado</span></span></li>{% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="vazio"><p>Nenhum currículo cita esses termos.</p></div>
+  {% endif %}
+{% endif %}
+{% endblock %}

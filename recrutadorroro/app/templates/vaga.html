@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "_situacao.html" import selo, decisao, barra %}
+{% block titulo %}{{ vaga.titulo }} · RecrutadorRORO{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <p class="migalha"><a href="/">Vagas</a> /</p>
+    <h1>{{ vaga.titulo }}</h1>
+    <p class="sutil">
+      {{ MODALIDADES[vaga.modalidade] }}{% if vaga.cidades and vaga.modalidade != 'remoto' %} · {{ vaga.cidades.splitlines()|join(', ') }}{% endif %}
+      · mínimo {{ vaga.anos_minimos|num }} ano(s){% if vaga.termos_area %} na área{% endif %}
+      · {{ NIVEIS[vaga.formacao_minima] }}
+    </p>
+  </div>
+  <div class="acoes">
+    <a class="botao secundario" href="/vagas/{{ vaga.id }}/editar">Editar critérios</a>
+    {% if ranking %}<a class="botao secundario" href="/vagas/{{ vaga.id }}/exportar.csv">Exportar para Excel</a>{% endif %}
+  </div>
+</div>
+
+<details class="criterios">
+  <summary>Ver critérios da vaga</summary>
+  <div class="criterios-grade">
+    <div><h3>Obrigatórias</h3><ul>{% for t in vaga.obrigatorias.splitlines() %}<li>{{ t }}</li>{% else %}<li class="sutil">nenhuma</li>{% endfor %}</ul></div>
+    <div><h3>Desejáveis</h3><ul>{% for t in vaga.desejaveis.splitlines() %}<li>{{ t }}</li>{% else %}<li class="sutil">nenhuma</li>{% endfor %}</ul></div>
+    <div><h3>Área da experiência</h3><ul>{% for t in vaga.termos_area.splitlines() %}<li>{{ t }}</li>{% else %}<li class="sutil">qualquer experiência</li>{% endfor %}</ul></div>
+    <div><h3>Cursos aceitos</h3><ul>{% for t in vaga.cursos.splitlines() %}<li>{{ t }}</li>{% else %}<li class="sutil">qualquer curso</li>{% endfor %}</ul></div>
+  </div>
+</details>
+
+{% for m in mensagens %}<div class="aviso ok">{{ m }}</div>{% endfor %}
+{% if erros %}<div class="aviso erro">{% for e in erros %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+
+<form class="envio" method="post" action="/vagas/{{ vaga.id }}/curriculos" enctype="multipart/form-data">
+  <label class="envio-area">
+    <input type="file" name="arquivos" multiple accept=".pdf,.docx,.txt,.md" required>
+    <span><strong>Enviar currículos</strong> · PDF, Word (.docx) ou TXT · vários de uma vez · até 5 MB cada</span>
+  </label>
+  <button class="botao" type="submit">Enviar e avaliar</button>
+</form>
+
+{% if ranking %}
+<div class="resumo-contagem">
+  {% set atende = ranking|selectattr('1.situacao', 'equalto', ATENDE)|list|length %}
+  {% set verificar = ranking|selectattr('1.situacao', 'equalto', VERIFICAR)|list|length %}
+  <span>{{ ranking|length }} currículo(s)</span>
+  <span>{{ selo(ATENDE) }} {{ atende }}</span>
+  <span>{{ selo(VERIFICAR) }} {{ verificar }}</span>
+  <span>{{ selo(NAO_ATENDE) }} {{ ranking|length - atende - verificar }}</span>
+</div>
+
+<div class="tabela-rolagem">
+<table class="tabela ranking">
+  <thead>
+    <tr><th>#</th><th>Currículo</th><th>Situação</th><th>Nota</th><th>Anos na área</th><th>Formação</th><th>Por que</th><th>Decisão</th></tr>
+  </thead>
+  <tbody>
+  {% for c, r in ranking %}
+    <tr>
+      <td class="pos">{{ loop.index }}</td>
+      <td><a href="/vagas/{{ vaga.id }}/candidatos/{{ c.id }}"><strong>{{ c.arquivo }}</strong></a>{% if r.cidade %}<br><span class="sutil">{{ r.cidade }}</span>{% endif %}</td>
+      <td>{{ selo(r.situacao) }}</td>
+      <td>{{ barra(r.nota) }}</td>
+      <td>{{ r.anos_area|num }}</td>
+      <td>{{ NIVEIS[r.nivel_formacao] if r.nivel_formacao else '—' }}</td>
+      <td class="motivos">
+        {% for m in r.motivos %}<div class="motivo">✕ {{ m }}</div>{% endfor %}
+        {% for a in r.alertas %}<div class="alerta-txt">! {{ a }}</div>{% endfor %}
+        {% if not r.motivos and not r.alertas %}<div class="ok-txt">✓ Atende a todos os critérios</div>{% endif %}
+      </td>
+      <td>
+        {{ decisao(c.decisao) }}
+        <a class="link-pequeno" href="/vagas/{{ vaga.id }}/candidatos/{{ c.id }}">detalhes →</a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<div class="vazio"><p>Nenhum currículo enviado para esta vaga ainda.</p></div>
+{% endif %}
+
+<form class="zona-perigo" method="post" action="/vagas/{{ vaga.id }}/excluir"
+      onsubmit="return confirm('Excluir esta vaga e TODOS os currículos dela? Não dá para desfazer.');">
+  <button class="botao perigo" type="submit">Excluir vaga e currículos</button>
+  <span class="sutil">Use quando o processo terminar, para não guardar dados pessoais além do necessário (LGPD).</span>
+</form>
+{% endblock %}

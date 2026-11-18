@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Vagas</h1>
+    <p class="sutil">Cadastre a vaga com os critérios, envie os currículos e veja o ranking com a justificativa de cada nota.</p>
+  </div>
+  <a class="botao" href="/vagas/nova">+ Nova vaga</a>
+</div>
+
+<form class="busca-rapida" action="/busca" method="get">
+  <input type="search" name="q" placeholder="Buscar perfis em todos os currículos. Ex.: eSocial, TOTVS RM | Senior, Fortaleza" aria-label="Buscar perfis">
+  <button class="botao secundario" type="submit">Buscar</button>
+</form>
+
+{% if vagas %}
+<div class="tabela-rolagem">
+<table class="tabela">
+  <thead><tr><th>Vaga</th><th>Local</th><th>Currículos</th><th>Para entrevistar</th><th>Criada em</th></tr></thead>
+  <tbody>
+  {% for v in vagas %}
+    <tr>
+      <td><a href="/vagas/{{ v.id }}"><strong>{{ v.titulo }}</strong></a></td>
+      <td>{{ MODALIDADES[v.modalidade] }}{% if v.cidades and v.modalidade != 'remoto' %} · {{ v.cidades.splitlines()|join(', ') }}{% endif %}</td>
+      <td>{{ v.total }}</td>
+      <td>{{ v.entrevistar or 0 }}</td>
+      <td>{{ v.criada_em[:10] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<div class="vazio">
+  <p><strong>Nenhuma vaga cadastrada ainda.</strong></p>
+  <p>Comece criando uma vaga. Para testar, use os currículos fictícios da pasta <code>exemplos/curriculos</code>.</p>
+  <a class="botao" href="/vagas/nova">Criar a primeira vaga</a>
+</div>
+{% endif %}
+{% endblock %}

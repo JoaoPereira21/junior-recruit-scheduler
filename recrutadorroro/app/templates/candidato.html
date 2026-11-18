@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_situacao.html" import selo, decisao, barra %}
+{% block titulo %}{{ c.arquivo }} · RecrutadorRORO{% endblock %}
+{% block conteudo %}
+<p class="migalha"><a href="/">Vagas</a> / <a href="/vagas/{{ vaga.id }}">{{ vaga.titulo }}</a> /</p>
+<div class="cabecalho-pagina">
+  <div>
+    <h1>{{ c.arquivo }}</h1>
+    <p class="sutil">{{ posicao }}º de {{ total }} no ranking{% if r.cidade %} · {{ r.cidade }}{% endif %} · enviado em {{ c.enviado_em[:10] }}</p>
+  </div>
+  <div class="placar">
+    {{ selo(r.situacao) }}
+    <div class="placar-nota">{{ r.nota }}<small>/100</small></div>
+  </div>
+</div>
+
+{% if r.motivos or r.alertas %}
+<div class="painel">
+  {% for m in r.motivos %}<div class="motivo">✕ {{ m }}</div>{% endfor %}
+  {% for a in r.alertas %}<div class="alerta-txt">! {{ a }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<div class="duas-colunas">
+  <section>
+    <h2>Avaliação por critério</h2>
+    {% for cr in r.criterios %}
+    <div class="criterio {{ 'falhou' if cr.falhou else ('parcial' if cr.nota < 50 else '') }}">
+      <div class="criterio-topo">
+        <h3>{{ cr.nome }}{% if cr.eliminatorio %} <span class="tag">obrigatório</span>{% endif %}</h3>
+        <span class="sutil">peso {{ cr.peso }}</span>
+        {{ barra(cr.nota) }}
+      </div>
+      <p class="criterio-resumo">{{ cr.resumo }}</p>
+      {% if cr.itens %}
+      <ul class="itens">
+        {% for i in cr.itens %}
+        <li class="{{ 'sim' if i.atendido else 'nao' }}">
+          <span class="marca-item">{{ '✓' if i.atendido else '✕' }}</span>
+          <span><strong>{{ i.nome }}</strong>
+          {% if i.evidencia %}<br><q>{{ i.evidencia }}</q>{% elif not i.atendido and cr.nome.startswith('Competências') %}<br><span class="sutil">não encontrado no currículo</span>{% endif %}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+
+  <aside>
+    <div class="painel">
+      <h2>Decisão do recrutador</h2>
+      <p>Atual: {{ decisao(c.decisao) }}</p>
+      <form method="post" action="/vagas/{{ vaga.id }}/candidatos/{{ c.id }}/decisao" class="formulario-decisao">
+        <input type="hidden" name="voltar" value="/vagas/{{ vaga.id }}/candidatos/{{ c.id }}">
+        <label class="campo">Observação
+          <textarea name="observacao" rows="3" placeholder="Ex.: mora em Caucaia, confirmou disponibilidade">{{ c.observacao }}</textarea>
+        </label>
+        <div class="acoes">
+          <button class="botao" name="decisao" value="entrevistar">Entrevistar</button>
+          <button class="botao secundario" name="decisao" value="reprovado">Reprovar</button>
+          <button class="botao fantasma" name="decisao" value="pendente">Pendente</button>
+        </div>
+      </form>
+    </div>
+
+    <details class="painel" open>
+      <summary><strong>Texto lido do currículo</strong> <span class="sutil">(e-mail, telefone e CPF ocultos)</span></summary>
+      <pre class="texto-cv">{{ texto }}</pre>
+    </details>
+
+    <form method="post" action="/vagas/{{ vaga.id }}/candidatos/{{ c.id }}/excluir"
+          onsubmit="return confirm('Excluir este currículo?');">
+      <button class="botao perigo pequeno" type="submit">Excluir este currículo</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

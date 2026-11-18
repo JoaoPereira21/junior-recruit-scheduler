@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}RecrutadorRORO{% endblock %}</title>
+  <link rel="stylesheet" href="/static/estilo.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="topo-dentro">
+      <a class="marca" href="/">Recrutador<strong>RORO</strong></a>
+      <nav>
+        <a href="/">Vagas</a>
+        <a href="/vagas/nova">Nova vaga</a>
+        <a href="/busca">Buscar perfis</a>
+      </nav>
+    </div>
+  </header>
+  <main class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+  <footer class="rodape">
+    Avaliação automática por regras: ordena e explica, mas a decisão é sempre do recrutador.
+    Nome, idade, gênero, estado civil e foto não entram na nota.
+  </footer>
+</body>
+</html>

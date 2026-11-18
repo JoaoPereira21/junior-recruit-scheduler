@@ -1,0 +1,10 @@
+# Banco de dados com o texto dos currículos: NUNCA versionar (LGPD).
+dados/
+*.db
+# Currículos reais não devem ficar na pasta do projeto. Só os fictícios de exemplos/.
+curriculos/
+!exemplos/curriculos/
+
+.venv/
+__pycache__/
+.pytest_cache/

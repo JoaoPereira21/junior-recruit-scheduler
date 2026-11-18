@@ -1,0 +1,9 @@
+{% macro selo(situacao) -%}
+<span class="selo {{ 'ok' if situacao == ATENDE else ('alerta' if situacao == VERIFICAR else 'nao') }}">{{ situacao }}</span>
+{%- endmacro %}
+{% macro decisao(d) -%}
+<span class="decisao d-{{ d }}">{{ DECISOES[d] }}</span>
+{%- endmacro %}
+{% macro barra(nota) -%}
+<span class="nota"><span class="nota-num">{{ nota }}</span><span class="nota-barra"><span style="width: {{ nota }}%"></span></span></span>
+{%- endmacro %}

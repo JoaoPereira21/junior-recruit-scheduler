@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar vaga' if vaga else 'Nova vaga' }} · RecrutadorRORO{% endblock %}
+{% block conteudo %}
+<h1>{{ 'Editar vaga' if vaga else 'Nova vaga' }}</h1>
+<p class="sutil">Escreva um item por linha. Use <code>|</code> para sinônimos: <code>TOTVS RM | Senior</code> aceita qualquer um dos dois.
+Maiúsculas, acentos e hífens são ignorados (<code>eSocial</code> encontra “e-Social”).</p>
+
+{% if erros %}
+<div class="aviso erro">{% for e in erros %}<p>{{ e }}</p>{% endfor %}</div>
+{% endif %}
+
+<form method="post" action="{{ '/vagas/%d/editar' % vaga.id if vaga else '/vagas' }}" class="formulario">
+  <label class="campo largo">Título da vaga *
+    <input name="titulo" required value="{{ dados.titulo or '' }}" placeholder="Analista de Departamento Pessoal Pleno">
+  </label>
+
+  <fieldset class="grupo">
+    <legend>Competências</legend>
+    <label class="campo">Obrigatórias <span class="dica">Faltou alguma? Candidato fica como “Não atende”.</span>
+      <textarea name="obrigatorias" rows="7" placeholder="folha de pagamento&#10;rescisão | rescisões&#10;eSocial">{{ dados.obrigatorias or '' }}</textarea>
+    </label>
+    <label class="campo">Desejáveis <span class="dica">Só aumentam a nota.</span>
+      <textarea name="desejaveis" rows="7" placeholder="TOTVS RM | Senior&#10;Excel avançado">{{ dados.desejaveis or '' }}</textarea>
+    </label>
+  </fieldset>
+
+  <fieldset class="grupo">
+    <legend>Experiência</legend>
+    <label class="campo">Anos mínimos
+      <input name="anos_minimos" inputmode="decimal" value="{{ (dados.anos_minimos|num) if dados.anos_minimos else '0' }}">
+    </label>
+    <label class="campo">Palavras que identificam a área <span class="dica">Só contam os empregos cujo cargo cite uma delas. Vazio = conta toda a experiência.</span>
+      <textarea name="termos_area" rows="3" placeholder="departamento pessoal&#10;DP">{{ dados.termos_area or '' }}</textarea>
+    </label>
+  </fieldset>
+
+  <fieldset class="grupo">
+    <legend>Formação</legend>
+    <label class="campo">Formação mínima
+      <select name="formacao_minima">
+        {% for n, nome in NIVEIS.items() %}
+        <option value="{{ n }}" {% if (dados.formacao_minima or 0) == n %}selected{% endif %}>{{ nome }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="campo">Cursos aceitos <span class="dica">Vazio = qualquer curso.</span>
+      <textarea name="cursos" rows="3" placeholder="Administração&#10;Recursos Humanos&#10;Ciências Contábeis">{{ dados.cursos or '' }}</textarea>
+    </label>
+  </fieldset>
+
+  <fieldset class="grupo">
+    <legend>Local</legend>
+    <label class="campo">Modalidade
+      <select name="modalidade">
+        {% for k, nome in MODALIDADES.items() %}
+        <option value="{{ k }}" {% if (dados.modalidade or 'presencial') == k %}selected{% endif %}>{{ nome }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="campo">Cidades <span class="dica">Não elimina: só gera alerta para conferir.</span>
+      <textarea name="cidades" rows="3" placeholder="Fortaleza&#10;Caucaia">{{ dados.cidades or '' }}</textarea>
+    </label>
+  </fieldset>
+
+  <label class="campo largo">Descrição da vaga (opcional, só para consulta)
+    <textarea name="descricao" rows="5">{{ dados.descricao or '' }}</textarea>
+  </label>
+
+  <div class="acoes">
+    <button class="botao" type="submit">{{ 'Salvar e reavaliar' if vaga else 'Criar vaga' }}</button>
+    <a class="botao secundario" href="{{ '/vagas/%d' % vaga.id if vaga else '/' }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

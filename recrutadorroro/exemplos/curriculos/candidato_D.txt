@@ -1,0 +1,11 @@
+Candidato D
+Fortaleza - CE
+
+Resumo: Desenvolvedor de software com 5 anos de experiência em Python e Java.
+
+Experiência:
+Desenvolvedor Backend - Empresa de Tecnologia Exemplo (2020 - atual)
+- APIs REST, bancos de dados, integração com sistemas de folha de pagamento
+
+Formação: Ciência da Computação (concluído em 2019)
+Competências: Python, Java, SQL, Excel avançado
