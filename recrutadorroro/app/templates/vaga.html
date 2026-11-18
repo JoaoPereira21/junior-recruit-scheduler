@@ -8,7 +8,7 @@
     <h1>{{ vaga.titulo }}</h1>
     <p class="sutil">
       {{ MODALIDADES[vaga.modalidade] }}{% if vaga.cidades and vaga.modalidade != 'remoto' %} · {{ vaga.cidades.splitlines()|join(', ') }}{% endif %}
-      · mínimo {{ vaga.anos_minimos|num }} ano(s){% if vaga.termos_area %} na área{% endif %}
+      · {% if vaga.anos_minimos %}mínimo {{ vaga.anos_minimos|num }} ano(s){% if vaga.termos_area %} na área{% endif %}{% else %}sem mínimo de experiência{% endif %}
       · {{ NIVEIS[vaga.formacao_minima] }}
     </p>
   </div>

@@ -106,6 +106,12 @@ nav a { color: var(--sutil); font-weight: 500; }
 .aviso p { margin: 0; }
 .aviso.ok { background: var(--ok-fundo); color: var(--ok); }
 .aviso.erro { background: var(--nao-fundo); color: var(--nao); }
+.aviso.info { background: var(--cartao); border: 1px solid var(--primaria); max-width: 900px; }
+.aviso.info ul { margin: 6px 0; padding-left: 20px; }
+.importado { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 6px 0 !important; }
+.importar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; max-width: 900px; background: var(--cartao); border: 1px dashed var(--primaria); border-radius: var(--raio); padding: 12px 14px; margin-bottom: 16px; }
+.importar > div { flex: 1 1 320px; display: flex; flex-direction: column; }
+.importar input[type=file] { width: auto; border: 0; padding: 0; background: transparent; }
 
 .vazio { background: var(--cartao); border: 1px dashed var(--borda); border-radius: var(--raio); padding: 28px; text-align: center; }
 

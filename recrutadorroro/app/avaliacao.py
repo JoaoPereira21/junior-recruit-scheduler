@@ -26,6 +26,7 @@ VERIFICAR = "Verificar"
 class Vaga:
     titulo: str
     obrigatorias: list[str] = field(default_factory=list)
+    minimo_obrigatorias: int = 100  # % das obrigatórias que precisam aparecer
     desejaveis: list[str] = field(default_factory=list)
     anos_minimos: float = 0
     termos_area: list[str] = field(default_factory=list)
@@ -114,9 +115,16 @@ def avaliar(vaga: Vaga, texto: str, hoje: date | None = None) -> Resultado:
         itens = _avaliar_termos(vaga.obrigatorias, texto, normal)
         ok = sum(i.atendido for i in itens)
         faltam = [i.nome for i in itens if not i.atendido]
+        minimo = min(100, max(1, vaga.minimo_obrigatorias))
+        falhou = ok * 100 < minimo * len(itens)
+        resumo = f"{ok} de {len(itens)} encontradas"
+        if minimo < 100:
+            resumo += f" (mínimo exigido: {minimo}%)"
         c = Criterio("Competências obrigatórias", PESOS["obrigatorias"], ok / len(itens),
-                     f"{ok} de {len(itens)} encontradas", itens, eliminatorio=True, falhou=bool(faltam))
-        if faltam:
+                     resumo, itens, eliminatorio=True, falhou=falhou)
+        if falhou and minimo < 100:
+            motivos.append(f"Cita {ok} de {len(itens)} obrigatórias, abaixo do mínimo de {minimo}%. Não cita: " + ", ".join(faltam))
+        elif falhou:
             motivos.append("Não cita: " + ", ".join(faltam))
         criterios.append(c)
 

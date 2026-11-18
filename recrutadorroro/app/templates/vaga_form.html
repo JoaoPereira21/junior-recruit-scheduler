@@ -5,6 +5,26 @@
 <p class="sutil">Escreva um item por linha. Use <code>|</code> para sinônimos: <code>TOTVS RM | Senior</code> aceita qualquer um dos dois.
 Maiúsculas, acentos e hífens são ignorados (<code>eSocial</code> encontra “e-Social”).</p>
 
+{% if not vaga and not importacao %}
+<form class="importar" method="post" action="/vagas/importar-lecom" enctype="multipart/form-data">
+  <div>
+    <strong>Tem a solicitação do Lecom?</strong>
+    <span class="sutil">Envie o PDF e os critérios são preenchidos a partir da job description, para você revisar. Dados pessoais do formulário são ignorados e o PDF não é guardado.</span>
+  </div>
+  <input type="file" name="arquivo" accept=".pdf" required aria-label="PDF do Lecom">
+  <button class="botao secundario" type="submit">Importar do Lecom</button>
+</form>
+{% endif %}
+
+{% if importacao %}
+<div class="aviso info">
+  <p><strong>Importado do Lecom. Revise os critérios abaixo antes de salvar.</strong></p>
+  {% if importacao.resumo %}<p class="importado">{% for k, v in importacao.resumo %}<span><span class="sutil">{{ k }}:</span> {{ v }}</span>{% endfor %}</p>{% endif %}
+  {% if importacao.avisos %}<ul>{% for a in importacao.avisos %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
+  {% if importacao.ignorados %}<p>Trechos longos que não viraram critério (inclua manualmente se forem importantes): <em>{{ importacao.ignorados|join('; ') }}</em></p>{% endif %}
+</div>
+{% endif %}
+
 {% if erros %}
 <div class="aviso erro">{% for e in erros %}<p>{{ e }}</p>{% endfor %}</div>
 {% endif %}
@@ -16,8 +36,11 @@ Maiúsculas, acentos e hífens são ignorados (<code>eSocial</code> encontra “
 
   <fieldset class="grupo">
     <legend>Competências</legend>
-    <label class="campo">Obrigatórias <span class="dica">Faltou alguma? Candidato fica como “Não atende”.</span>
+    <label class="campo">Obrigatórias <span class="dica">Abaixo do mínimo abaixo, o candidato fica como “Não atende”.</span>
       <textarea name="obrigatorias" rows="7" placeholder="folha de pagamento&#10;rescisão | rescisões&#10;eSocial">{{ dados.obrigatorias or '' }}</textarea>
+    </label>
+    <label class="campo">Mínimo de obrigatórias citadas (%) <span class="dica">100 = precisa citar todas. Com muitos requisitos, 60 a 80 evita eliminar bons candidatos que não escreveram tudo.</span>
+      <input name="minimo_obrigatorias" inputmode="numeric" value="{{ dados.minimo_obrigatorias or 100 }}">
     </label>
     <label class="campo">Desejáveis <span class="dica">Só aumentam a nota.</span>
       <textarea name="desejaveis" rows="7" placeholder="TOTVS RM | Senior&#10;Excel avançado">{{ dados.desejaveis or '' }}</textarea>

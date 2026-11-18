@@ -23,6 +23,7 @@ from .analise import NIVEIS
 from .avaliacao import ATENDE, NAO_ATENDE, VERIFICAR, avaliar, chave_ranking, num
 from .busca import buscar
 from .extracao import ArquivoInvalido, extrair_texto
+from .lecom import NaoEhLecom, importar_pdf
 from .texto import mascarar
 
 PASTA = Path(__file__).resolve().parent
@@ -97,6 +98,13 @@ def _ler_formulario_vaga(form) -> tuple[dict, list[str]]:
     except ValueError:
         erros.append("Escolha uma formação mínima válida.")
         dados["formacao_minima"] = 0
+    try:
+        dados["minimo_obrigatorias"] = int(float((form.get("minimo_obrigatorias") or "100").replace(",", ".")))
+        if not 1 <= dados["minimo_obrigatorias"] <= 100:
+            raise ValueError
+    except ValueError:
+        erros.append("O mínimo de competências obrigatórias deve ser um percentual entre 1 e 100.")
+        dados["minimo_obrigatorias"] = 100
     if dados["modalidade"] not in MODALIDADES:
         erros.append("Escolha uma modalidade válida.")
         dados["modalidade"] = "presencial"
@@ -123,16 +131,43 @@ def inicio(request: Request):
 
 @app.get("/vagas/nova", response_class=HTMLResponse)
 def nova_vaga(request: Request):
-    return templates.TemplateResponse(request, "vaga_form.html", {"vaga": None, "dados": {}, "erros": []})
+    return templates.TemplateResponse(request, "vaga_form.html", {"vaga": None, "dados": {}, "erros": [], "importacao": None})
 
 
 @app.post("/vagas", response_class=HTMLResponse)
 async def criar_vaga(request: Request):
     dados, erros = _ler_formulario_vaga(await request.form())
     if erros:
-        return templates.TemplateResponse(request, "vaga_form.html", {"vaga": None, "dados": dados, "erros": erros}, 400)
+        return templates.TemplateResponse(request, "vaga_form.html", {"vaga": None, "dados": dados, "erros": erros, "importacao": None}, 400)
     vaga_id = db.salvar_vaga(dados)
     return RedirectResponse(f"/vagas/{vaga_id}", 303)
+
+
+@app.post("/vagas/importar-lecom", response_class=HTMLResponse)
+async def importar_lecom(request: Request):
+    """Lê o PDF de solicitação do Lecom e abre o formulário preenchido para revisão.
+    O PDF não é guardado; os dados pessoais do formulário são ignorados."""
+    form = await request.form()
+    arquivo = form.get("arquivo")
+    erro = None
+    if not isinstance(arquivo, UploadFile) or not arquivo.filename:
+        erro = "Selecione o PDF da solicitação do Lecom."
+    elif not arquivo.filename.lower().endswith(".pdf"):
+        erro = "O arquivo do Lecom precisa ser PDF."
+    else:
+        conteudo = await arquivo.read(MAX_MB * 1024 * 1024 + 1)
+        if len(conteudo) > MAX_MB * 1024 * 1024:
+            erro = f"O PDF é maior que {MAX_MB} MB."
+        else:
+            try:
+                importacao = importar_pdf(conteudo)
+            except (NaoEhLecom, ArquivoInvalido) as e:
+                erro = str(e)
+    if erro:
+        return templates.TemplateResponse(
+            request, "vaga_form.html", {"vaga": None, "dados": {}, "erros": [erro], "importacao": None}, 400)
+    return templates.TemplateResponse(
+        request, "vaga_form.html", {"vaga": None, "dados": importacao.dados, "erros": [], "importacao": importacao})
 
 
 @app.get("/vagas/{vaga_id}", response_class=HTMLResponse)
@@ -144,7 +179,7 @@ def ver_vaga(request: Request, vaga_id: int):
 @app.get("/vagas/{vaga_id}/editar", response_class=HTMLResponse)
 def editar_vaga(request: Request, vaga_id: int):
     linha = _vaga_ou_404(vaga_id)
-    return templates.TemplateResponse(request, "vaga_form.html", {"vaga": linha, "dados": dict(linha), "erros": []})
+    return templates.TemplateResponse(request, "vaga_form.html", {"vaga": linha, "dados": dict(linha), "erros": [], "importacao": None})
 
 
 @app.post("/vagas/{vaga_id}/editar", response_class=HTMLResponse)
@@ -152,7 +187,7 @@ async def salvar_edicao(request: Request, vaga_id: int):
     linha = _vaga_ou_404(vaga_id)
     dados, erros = _ler_formulario_vaga(await request.form())
     if erros:
-        return templates.TemplateResponse(request, "vaga_form.html", {"vaga": linha, "dados": dados, "erros": erros}, 400)
+        return templates.TemplateResponse(request, "vaga_form.html", {"vaga": linha, "dados": dados, "erros": erros, "importacao": None}, 400)
     db.salvar_vaga(dados, vaga_id)
     return RedirectResponse(f"/vagas/{vaga_id}", 303)
 

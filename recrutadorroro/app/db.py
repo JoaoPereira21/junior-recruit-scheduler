@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS vagas (
     titulo TEXT NOT NULL,
     descricao TEXT NOT NULL DEFAULT '',
     obrigatorias TEXT NOT NULL DEFAULT '',
+    minimo_obrigatorias INTEGER NOT NULL DEFAULT 100,
     desejaveis TEXT NOT NULL DEFAULT '',
     anos_minimos REAL NOT NULL DEFAULT 0,
     termos_area TEXT NOT NULL DEFAULT '',
@@ -62,11 +63,19 @@ def conectar() -> Iterator[sqlite3.Connection]:
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys = ON")
     con.executescript(_ESQUEMA)
+    _migrar(con)
     try:
         yield con
         con.commit()
     finally:
         con.close()
+
+
+def _migrar(con: sqlite3.Connection) -> None:
+    """Acrescenta colunas novas em bancos criados por versões anteriores."""
+    colunas = {linha[1] for linha in con.execute("PRAGMA table_info(vagas)")}
+    if "minimo_obrigatorias" not in colunas:
+        con.execute("ALTER TABLE vagas ADD COLUMN minimo_obrigatorias INTEGER NOT NULL DEFAULT 100")
 
 
 def _agora() -> str:
@@ -81,6 +90,7 @@ def para_vaga(linha: sqlite3.Row) -> Vaga:
     return Vaga(
         titulo=linha["titulo"],
         obrigatorias=lista(linha["obrigatorias"]),
+        minimo_obrigatorias=linha["minimo_obrigatorias"],
         desejaveis=lista(linha["desejaveis"]),
         anos_minimos=linha["anos_minimos"],
         termos_area=lista(linha["termos_area"]),
@@ -94,7 +104,7 @@ def para_vaga(linha: sqlite3.Row) -> Vaga:
 # ---------------------------------------------------------------- vagas
 
 def salvar_vaga(dados: dict, vaga_id: int | None = None) -> int:
-    campos = ("titulo", "descricao", "obrigatorias", "desejaveis", "anos_minimos", "termos_area",
+    campos = ("titulo", "descricao", "obrigatorias", "minimo_obrigatorias", "desejaveis", "anos_minimos", "termos_area",
               "formacao_minima", "cursos", "cidades", "modalidade")
     valores = [dados[c] for c in campos]
     with conectar() as con:

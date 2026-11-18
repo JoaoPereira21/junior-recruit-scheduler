@@ -19,6 +19,7 @@ VAGA_EXEMPLO = {
         "folha de pagamento", "rescisão | rescisões", "férias", "admissão | admissões",
         "eSocial", "FGTS Digital", "DCTFWeb",
     ]),
+    "minimo_obrigatorias": 100,
     "desejaveis": "\n".join(["TOTVS RM | Senior", "Excel avançado", "saúde | hospital | clínica", "PJ"]),
     "anos_minimos": 3.0,
     "termos_area": "departamento pessoal\nDP",

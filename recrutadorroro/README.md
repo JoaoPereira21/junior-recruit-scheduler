@@ -45,11 +45,35 @@ uvicorn app.main:app --port 8000
 .venv/bin/python -m pytest -q
 ```
 
+## Importar vaga do Lecom
+
+Na tela **Nova vaga**, envie o PDF da solicitação de contratação do Lecom
+(“[Tech] Gestão de Pessoas”). O sistema preenche o formulário para você **revisar antes de salvar**:
+
+| No Lecom | Vira |
+|---|---|
+| `Vaga:` da job description (ou o campo Cargo) | Título, com o código Lecom |
+| “experiência comprovada em X” | Competência obrigatória e palavra da área |
+| Itens de “Requisitos técnicos” | Competências obrigatórias |
+| Itens começando com “noções de” | Competências desejáveis |
+| “Diferenciais” e “Certificações desejáveis” | Competências desejáveis |
+| Modelo de Trabalho | Modalidade |
+| “N anos de experiência” (se houver) | Anos mínimos |
+| Cargo, área, senioridade e job description | Descrição da vaga (só consulta) |
+
+- Com mais de 6 requisitos obrigatórios, o mínimo sugerido é **70%** deles: quase ninguém
+  escreve todos no currículo. Ajuste conforme a vaga.
+- **Dados pessoais do formulário são ignorados** (solicitante, e-mail, telefone, diretoria,
+  faturamento, justificativa, pareceres) e o PDF não é guardado.
+- Termos genéricos (ex.: “performance”, “traces”) podem ser removidos ou trocados por sinônimos.
+- Exemplo fictício para teste: `exemplos/lecom/solicitacao_ficticia.pdf` e os currículos em
+  `exemplos/lecom/curriculos/`.
+
 ## Como a avaliação funciona
 
 | Critério | Peso | Elimina? | Como é verificado |
 |---|---|---|---|
-| Competências obrigatórias | 40 | Sim, se faltar qualquer uma | O termo (ou um sinônimo) aparece no currículo |
+| Competências obrigatórias | 40 | Sim, se citar menos que o mínimo (padrão: todas) | O termo (ou um sinônimo) aparece no currículo |
 | Competências desejáveis | 20 | Não | Idem; só aumentam a nota |
 | Experiência | 20 | Sim, se abaixo do mínimo | Soma dos períodos (ex.: `2018 - 2021`, `jan/2019 a atual`) sem contar sobreposição. Se a vaga tiver “palavras da área”, só contam empregos cujo cargo cite uma delas |
 | Formação | 10 | Sim, se abaixo do mínimo | Nível (técnico, superior cursando/completo, pós) e curso aceito |
@@ -111,11 +135,12 @@ recrutadorroro/
 │   ├── texto.py       # normalização, busca de termos e mascaramento de dados pessoais
 │   ├── extracao.py    # texto de PDF, DOCX e TXT
 │   ├── busca.py       # busca de perfis em todos os currículos
+│   ├── lecom.py       # importação da vaga a partir do PDF do Lecom
 │   ├── db.py          # banco SQLite local
 │   ├── exemplo.py     # carrega a vaga e os currículos de exemplo
 │   ├── templates/     # telas (HTML)
 │   └── static/        # estilo (CSS)
-├── exemplos/curriculos/   # currículos FICTÍCIOS para teste
+├── exemplos/          # vaga do Lecom e currículos FICTÍCIOS para teste
 └── tests/
 ```
 
